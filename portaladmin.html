@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JHC ADV AGRO — Painel Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.stat-grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:.85rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);padding:1.1rem 1rem;position:relative;overflow:hidden;transition:all .22s;}
+.stat-card::after{content:attr(data-icon);position:absolute;right:.85rem;top:.75rem;font-size:1.4rem;opacity:.13;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shg);}
+.stat-card .sc-l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.38rem;font-weight:600;}
+.stat-card .sc-v{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800;color:var(--gold);line-height:1;}
+.stat-card .sc-sub{font-size:.67rem;color:var(--muted);margin-top:.25rem;}
+.proc-det-grid{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;}
+.upd-panel{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);padding:1.5rem;position:sticky;top:1.5rem;}
+.upd-panel h3{font-size:.88rem;color:var(--white);margin-bottom:1.1rem;font-family:var(--sans);font-weight:700;display:flex;align-items:center;gap:.5rem;}
+.info-tip{background:rgba(201,168,76,.06);border:1px solid var(--border);border-radius:var(--r);padding:.72rem 1rem;display:flex;align-items:flex-start;gap:.6rem;font-size:.79rem;color:var(--muted);margin-bottom:.9rem;}
+.pw-reset-row{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:.8rem 1rem;display:flex;align-items:center;gap:.85rem;margin-bottom:.55rem;flex-wrap:wrap;}
+.pw-reset-row .pwr-nm{font-weight:600;color:var(--white);font-size:.84rem;}
+.pw-reset-row .pwr-lg{font-family:monospace;background:var(--navy3);padding:.14rem .48rem;border-radius:4px;font-size:.78rem;color:var(--gold);}
+.pw-reset-row .pwr-em{font-size:.76rem;color:var(--muted);}
+.pw-reset-row .pwr-dt{font-size:.7rem;color:var(--muted);margin-left:auto;}
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mob-top" id="mob-top">
+  <div style="display:flex;align-items:center;gap:.6rem">
+    <div style="width:30px;height:30px;border-radius:4px 4px 50% 50%;background:linear-gradient(135deg,#c0392b,#7a1a1a);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:.72rem;color:#fff">JHC</div>
+    <span class="mob-top-brand">Painel Admin</span>
+  </div>
+  <div class="mob-top-btn" onclick="toggleSb()">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSb()"></div>
+
+<div class="portal">
+  <aside class="sb" id="sb">
+    <div class="sb-logo">
+      <div class="sb-icon" style="background:linear-gradient(135deg,#c0392b,#7a1a1a)">JHC</div>
+      <div>
+        <div class="sb-brand">JHC ADV AGRO</div>
+        <div class="sb-brand-sub">Painel Administrativo</div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-av adm" id="sb-av">A</div>
+      <div class="sb-nm" id="sb-nm">Admin</div>
+      <div class="sb-role a">&#128737; Administrador</div>
+    </div>
+    <div class="sb-sec">&#9654; Vis&atilde;o Global</div>
+    <ul class="sb-nav">
+      <li><a data-p="dash" class="act" onclick="navTo('dash')"><span class="sb-ico">&#128202;</span>Dashboard</a></li>
+      <li><a data-p="processos" onclick="navTo('processos')"><span class="sb-ico">&#128194;</span>Todos os Processos</a></li>
+      <li><a data-p="clientes" onclick="navTo('clientes')"><span class="sb-ico">&#128101;</span>Clientes</a></li>
+      <li><a data-p="equipe" onclick="navTo('equipe')"><span class="sb-ico">&#128106;</span>Equipe</a></li>
+    </ul>
+    <div class="sb-sec">&#9654; Conte&uacute;do</div>
+    <ul class="sb-nav">
+      <li><a data-p="interacoes" onclick="navTo('interacoes')"><span class="sb-ico">&#128172;</span>Intera&ccedil;&otilde;es</a></li>
+      <li><a data-p="arquivos" onclick="navTo('arquivos')"><span class="sb-ico">&#128206;</span>Arquivos</a></li>
+      <li><a data-p="noticias" onclick="navTo('noticias')"><span class="sb-ico">&#128240;</span>Not&iacute;cias</a></li>
+      <li><a data-p="log" onclick="navTo('log')"><span class="sb-ico">&#128336;</span>Log de Atividades</a></li>
+    </ul>
+    <div class="sb-sec">&#9654; Sistema</div>
+    <ul class="sb-nav">
+      <li><a data-p="perfil" onclick="navTo('perfil')"><span class="sb-ico">&#128100;</span>Meu Perfil</a></li>
+      <li><a onclick="sair()" style="color:#f08080"><span class="sb-ico">&#128682;</span>Sair</a></li>
+    </ul>
+    <div class="sb-qs">
+      <div class="sb-qs-t">&#9881; Admin</div>
+      <div class="sb-qs-i">Acesso total ao sistema</div>
+      <div class="sb-qs-i">&#128241; (17) 99728-7883</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- GLOBAL ALERT -->
+    <div id="al-auth" style="margin-bottom:1rem"></div>
+
+    <!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+    <div data-s="dash" class="act">
+      <div class="ph">
+        <div>
+          <h2 class="ptit" id="greet">&#128202; Painel Administrativo</h2>
+          <p class="psub">Vis&atilde;o completa do escrit&oacute;rio JHC ADV AGRO</p>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="navTo('processos')">&#128194; Todos os Processos</button>
+      </div>
+      <div class="stat-grid-6">
+        <div class="stat-card" data-icon="📁"><div class="sc-l">Total Processos</div><div class="sc-v" id="st1">—</div><div class="sc-sub">cadastrados</div></div>
+        <div class="stat-card" data-icon="⏳"><div class="sc-l">Pendentes</div><div class="sc-v" id="st2">—</div><div class="sc-sub">aguardando</div></div>
+        <div class="stat-card" data-icon="⚡"><div class="sc-l">Em Andamento</div><div class="sc-v" id="st3">—</div><div class="sc-sub">ativos</div></div>
+        <div class="stat-card" data-icon="👥"><div class="sc-l">Clientes</div><div class="sc-v" id="st4">—</div><div class="sc-sub">cadastrados</div></div>
+        <div class="stat-card" data-icon="⚖️"><div class="sc-l">Funcion&aacute;rios</div><div class="sc-v" id="st5">—</div><div class="sc-sub">ativos</div></div>
+        <div class="stat-card" data-icon="🏆"><div class="sc-l">Conclu&iacute;dos</div><div class="sc-v" id="st6">—</div><div class="sc-sub">finalizados</div></div>
+      </div>
+      <div class="tw">
+        <div class="tw-top">
+          <span class="tw-tit">&#128336; Processos Recentes</span>
+          <button class="btn btn-g btn-sm" onclick="navTo('processos')">Ver todos &#8594;</button>
+        </div>
+        <div id="dash-tb">
+          <div class="empty"><div class="empty-i">&#9203;</div><div class="empty-t">Carregando processos...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TODOS OS PROCESSOS ════════════════════════════════ -->
+    <div data-s="processos">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128194; Todos os Processos</h2>
+          <p class="psub">Gerencie, delegue e acompanhe todos os casos</p>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="tw-top">
+          <span class="tw-tit">Processos</span>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <input type="text" class="is" placeholder="&#128269; Buscar processo ou cliente..." oninput="filtProcs(this.value)" style="width:230px">
+            <select class="is" onchange="filtProcsSt(this.value)">
+              <option value="">Todos os status</option>
+              <option value="pending">&#9203; Pendente</option>
+              <option value="in_review">&#128269; Em an&aacute;lise</option>
+              <option value="active">&#9989; Ativo</option>
+              <option value="paused">&#9208; Pausado</option>
+              <option value="concluded">&#127942; Conclu&iacute;do</option>
+              <option value="archived">&#128230; Arquivado</option>
+            </select>
+          </div>
+        </div>
+        <div class="tsc">
+          <table>
+            <thead>
+              <tr>
+                <th>Processo</th>
+                <th>Cliente</th>
+                <th>&Aacute;rea</th>
+                <th>Status</th>
+                <th>Respons&aacute;vel</th>
+                <th>Data</th>
+                <th>A&ccedil;&otilde;es</th>
+              </tr>
+            </thead>
+            <tbody id="procs-tb">
+              <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DETALHE PROCESSO (admin) ══════════════════════════ -->
+    <div data-s="proc-det">
+      <button class="back-btn" onclick="navTo('processos')">&#8592; Voltar aos processos</button>
+      <div class="proc-det-grid">
+        <div>
+          <div id="proc-det-c"></div>
+          <!-- Chat inline -->
+          <div style="margin-top:1.5rem">
+            <h3 style="font-size:.92rem;color:var(--white);margin-bottom:1rem;font-family:var(--sans);font-weight:700">&#128172; Chat do Processo</h3>
+            <div class="chat-wrap" style="height:360px">
+              <div class="chat-list">
+                <div class="chat-list-hdr">Conversa</div>
+                <div id="chat-list-c"></div>
+              </div>
+              <div class="chat-main">
+                <div class="chat-hdr">
+                  <div class="chat-av" id="chat-av">?</div>
+                  <div>
+                    <div class="chat-hn" id="chat-hn">Cliente</div>
+                    <div class="chat-hs">Chat do processo</div>
+                  </div>
+                </div>
+                <div class="chat-msgs" id="chat-msgs"></div>
+                <div class="chat-inp">
+                  <input type="text" id="chat-inp" placeholder="Mensagem (admin)..." onkeypress="if(event.key==='Enter')sendMsg()">
+                  <button class="csnd" onclick="sendMsg()">&#10148;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right: admin update panel -->
+        <div>
+          <div class="upd-panel">
+            <h3>&#9998; Adicionar Atualiza&ccedil;&atilde;o</h3>
+            <div id="al-upd"></div>
+            <div class="fg">
+              <label>T&iacute;tulo *</label>
+              <input type="text" id="upd-tit" placeholder="Ex: Documentos analisados">
+            </div>
+            <div class="fg">
+              <label>Alterar status</label>
+              <select id="upd-st">
+                <option value="">&#128197; Manter status atual</option>
+                <option value="in_review">&#128269; Em an&aacute;lise</option>
+                <option value="active">&#9989; Ativo</option>
+                <option value="paused">&#9208; Pausado</option>
+                <option value="concluded">&#127942; Conclu&iacute;do</option>
+                <option value="archived">&#128230; Arquivado</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Delegar para</label>
+              <select id="upd-lawyer">
+                <option value="">&#128084; Manter respons&aacute;vel atual</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Descri&ccedil;&atilde;o *</label>
+              <textarea id="upd-desc" style="min-height:100px" placeholder="Descreva a atualiza&ccedil;&atilde;o..."></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem">
+              <input type="checkbox" id="upd-vis" checked style="width:auto;accent-color:var(--gold)">
+              <label for="upd-vis" style="font-size:.77rem;color:var(--muted);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:400">&#128065; Vis&iacute;vel para o cliente</label>
+            </div>
+            <div class="fg">
+              <label>&#128206; Anexar arquivos</label>
+              <div class="fdr" id="fdr" onclick="g('finp').click()"
+                ondragover="event.preventDefault();this.classList.add('ov')"
+                ondragleave="this.classList.remove('ov')"
+                ondrop="hDrop(event)" style="padding:.9rem">
+                <input type="file" id="finp" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" onchange="hFiles(this.files)">
+                <div style="font-size:1.3rem;margin-bottom:.25rem">&#128206;</div>
+                <div style="font-size:.76rem;font-weight:600">Clique ou arraste</div>
+              </div>
+              <div class="fli" id="fli"></div>
+            </div>
+            <button class="btn btn-g btn-f" onclick="salvarUpd()">&#9989; Salvar Atualiza&ccedil;&atilde;o</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENTES ═══════════════════════════════════════════ -->
+    <div data-s="clientes">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128101; Clientes</h2>
+          <p class="psub">Todos os clientes cadastrados no sistema</p>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="tw-top">
+          <span class="tw-tit">Clientes Cadastrados</span>
+          <input type="text" class="is" placeholder="&#128269; Buscar..." oninput="filtClientes(this.value)" style="width:200px">
+        </div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>CPF</th><th>Telefone</th><th>Cidade</th><th>Cadastrado em</th></tr></thead>
+            <tbody id="cli-tb">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EQUIPE ══════════════════════════════════════════════ -->
+    <div data-s="equipe">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128106; Equipe</h2>
+          <p class="psub">Gerencie funcion&aacute;rios e permiss&otilde;es de acesso</p>
+        </div>
+        <button class="btn btn-g" onclick="oM('m-new-lw')">&#10133; Novo Funcion&aacute;rio</button>
+      </div>
+      <!-- Password reset requests -->
+      <div class="tw" style="margin-bottom:1.5rem">
+        <div class="tw-top"><span class="tw-tit">&#128274; Solicita&ccedil;&otilde;es de Reset de Senha</span></div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Funcion&aacute;rio</th><th>Login</th><th>E-mail de Contato</th><th>Solicitado em</th><th>Status</th><th>A&ccedil;&otilde;es</th></tr></thead>
+            <tbody id="pw-resets-tb">
+              <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Team table -->
+      <div class="tw">
+        <div class="tw-top"><span class="tw-tit">&#128084; Funcion&aacute;rios Ativos</span></div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Nome</th><th>Login</th><th>Cargo</th><th>OAB</th><th>Status</th><th>A&ccedil;&otilde;es</th></tr></thead>
+            <tbody id="eq-tb">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INTERAÇÕES ═════════════════════════════════════════ -->
+    <div data-s="interacoes">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128172; Intera&ccedil;&otilde;es</h2>
+          <p class="psub">Acompanhe as conversa&ccedil;&otilde;es entre clientes e advogados</p>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="tw-top"><span class="tw-tit">Chats por Processo</span></div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Processo</th><th>Cliente</th><th>Respons&aacute;vel</th><th>Mensagens</th><th>Atualizado</th><th>A&ccedil;&otilde;es</th></tr></thead>
+            <tbody id="int-tb">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ARQUIVOS ════════════════════════════════════════════ -->
+    <div data-s="arquivos">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128206; Arquivos</h2>
+          <p class="psub">Todos os documentos enviados por clientes e funcion&aacute;rios</p>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="tw-top">
+          <span class="tw-tit">Documentos</span>
+          <input type="text" class="is" placeholder="&#128269; Buscar arquivo..." oninput="filtArqs(this.value)" style="width:200px">
+        </div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Arquivo</th><th>Processo</th><th>Cliente</th><th>Enviado por</th><th>Data</th><th>Download</th></tr></thead>
+            <tbody id="arq-tb">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ NOTÍCIAS ════════════════════════════════════════════ -->
+    <div data-s="noticias">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128240; Not&iacute;cias</h2>
+          <p class="psub">Publique conte&uacute;do jur&iacute;dico para os clientes</p>
+        </div>
+        <button class="btn btn-g" onclick="oM('m-news')">&#10133; Nova Not&iacute;cia</button>
+      </div>
+      <div class="tw">
+        <div class="tw-top"><span class="tw-tit">Not&iacute;cias Publicadas</span></div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>T&iacute;tulo</th><th>Categoria</th><th>Status</th><th>Data</th><th>A&ccedil;&otilde;es</th></tr></thead>
+            <tbody id="news-tb">
+              <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LOG DE ATIVIDADES ══════════════════════════════════ -->
+    <div data-s="log">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128336; Log de Atividades</h2>
+          <p class="psub">Hist&oacute;rico completo de a&ccedil;&otilde;es no sistema</p>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="tw-top"><span class="tw-tit">Atividades Recentes</span></div>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Data/Hora</th><th>Usu&aacute;rio</th><th>Papel</th><th>A&ccedil;&atilde;o</th><th>Detalhe</th></tr></thead>
+            <tbody id="log-tb">
+              <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)"><span class="ld"></span> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PERFIL ══════════════════════════════════════════════ -->
+    <div data-s="perfil">
+      <div class="ph">
+        <div>
+          <h2 class="ptit">&#128100; Meu Perfil</h2>
+          <p class="psub">Dados e seguran&ccedil;a da conta administrativa</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start">
+        <div class="fcard">
+          <div style="font-size:.72rem;font-weight:700;color:#f08080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem">&#128737; Conta Administrativa</div>
+          <div id="al-pf"></div>
+          <div class="fg"><label>Nome</label><input type="text" id="pf-nm" disabled style="opacity:.7"></div>
+          <div class="fg"><label>Login interno</label><input type="text" id="pf-lg" disabled style="opacity:.7"></div>
+          <div class="fg" style="margin-bottom:0"><label>Cargo</label><input type="text" id="pf-ro" disabled style="opacity:.7"></div>
+        </div>
+        <div class="fcard">
+          <div style="font-size:.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.9rem">&#128274; Alterar Senha</div>
+          <div class="info-tip">
+            <span style="font-size:1rem;flex-shrink:0">&#128161;</span>
+            <span>Use uma senha forte. Como administrador, voc&ecirc; tem acesso total ao sistema.</span>
+          </div>
+          <div class="fg"><label>Nova Senha (m&iacute;n 8) *</label><input type="password" id="pw1" placeholder="Nova senha segura"></div>
+          <div class="fg" style="margin-bottom:.85rem"><label>Confirmar *</label><input type="password" id="pw2" placeholder="Repita a senha"></div>
+          <button class="btn btn-g btn-f" onclick="chgPw()">&#128273; Salvar Nova Senha</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ MODAL: NOVO FUNCIONÁRIO ═══════════════════════════════ -->
+<div class="mo" id="m-new-lw">
+  <div class="md">
+    <div class="mh">
+      <span class="mh-tit">&#10133; Novo Funcion&aacute;rio</span>
+      <button class="mcl" onclick="cM('m-new-lw')">&#10005;</button>
+    </div>
+    <div class="mb2">
+      <div class="info-tip">
+        <span style="font-size:1rem;flex-shrink:0">&#128161;</span>
+        <span>O login ser&aacute; gerado automaticamente. A senha inicial ser&aacute; igual ao login e dever&aacute; ser alterada no primeiro acesso.</span>
+      </div>
+      <div id="al-nlw"></div>
+      <div class="fr">
+        <div class="fg"><label>Nome completo *</label>
+          <input type="text" id="nl-nm" placeholder="Nome do funcion&aacute;rio" oninput="prvLogin()">
+        </div>
+        <div class="fg"><label>Login (gerado auto)</label>
+          <input type="text" id="nl-lp" placeholder="Ex: rafaelajhc" readonly style="opacity:.75">
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>E-mail *</label>
+          <input type="email" id="nl-em" placeholder="email@exemplo.com">
+        </div>
+        <div class="fg"><label>N&ordm; OAB (se advogado)</label>
+          <input type="text" id="nl-oab" placeholder="SP 000.000">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Cargo / Fun&ccedil;&atilde;o *</label>
+        <select id="nl-ro">
+          <option value="lawyer">&#9878; Advogado(a)</option>
+          <option value="secretary">&#128084; Secret&aacute;rio(a)</option>
+          <option value="admin">&#128737; Administrador</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-gh" onclick="cM('m-new-lw')">Cancelar</button>
+      <button class="btn btn-g" onclick="criarFunc()">&#9989; Criar Funcion&aacute;rio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: NOVA NOTÍCIA ════════════════════════════════════ -->
+<div class="mo" id="m-news">
+  <div class="md" style="max-width:700px">
+    <div class="mh">
+      <span class="mh-tit">&#128240; Nova Not&iacute;cia</span>
+      <button class="mcl" onclick="cM('m-news')">&#10005;</button>
+    </div>
+    <div class="mb2">
+      <div class="al al-i" style="font-size:.79rem;margin-bottom:.9rem">
+        &#128161; Envie um arquivo (PDF, JPG, PNG) e/ou escreva o conte&uacute;do. A not&iacute;cia aparecer&aacute; para todos os clientes no portal.
+      </div>
+      <div id="al-nws"></div>
+      <div class="fg"><label>T&iacute;tulo *</label>
+        <input type="text" id="nw-ti" placeholder="T&iacute;tulo da not&iacute;cia">
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Categoria</label>
+          <select id="nw-ca">
+            <option value="">Geral</option>
+            <option>&#127806; Agroneg&oacute;cio</option>
+            <option>&#128221; Tribut&aacute;rio</option>
+            <option>&#127970; Empresarial</option>
+            <option>&#128106; Sucess&oacute;rio</option>
+            <option>&#128188; Trabalhista</option>
+            <option>&#127807; Ambiental</option>
+            <option>&#9878; Penal-Econ&ocirc;mico</option>
+          </select>
+        </div>
+        <div class="fg"><label>Resumo (exibido na listagem)</label>
+          <input type="text" id="nw-ex" placeholder="Breve descri&ccedil;&atilde;o...">
+        </div>
+      </div>
+      <!-- FILE UPLOAD -->
+      <div class="fg">
+        <label>&#128206; Arquivo (PDF, JPG, PNG &mdash; at&eacute; 20MB) &mdash; <em style="color:var(--gold);font-style:normal">opcional</em></label>
+        <div class="fdr" id="fdr-adm-news" onclick="g('finp-adm-news').click()"
+          ondragover="event.preventDefault();this.classList.add('ov')"
+          ondragleave="this.classList.remove('ov')"
+          ondrop="event.preventDefault();hAdmNewsFile(event.dataTransfer.files)"
+          style="padding:1.1rem">
+          <input type="file" id="finp-adm-news" accept=".pdf,.jpg,.jpeg,.png"
+            onchange="hAdmNewsFile(this.files)">
+          <div style="font-size:1.6rem;margin-bottom:.35rem">&#128206;</div>
+          <div style="font-weight:600;font-size:.82rem;color:var(--text);margin-bottom:.18rem">Clique ou arraste PDF, JPG ou PNG</div>
+          <div style="font-size:.7rem">Arquivo ser&aacute; exibido na not&iacute;cia para os clientes</div>
+          <div id="adm-news-file-name" style="font-size:.74rem;color:var(--gold);margin-top:.4rem"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Conte&uacute;do completo <em style="color:var(--muted);font-style:normal;font-size:.7rem">(opcional se enviar arquivo)</em></label>
+        <textarea id="nw-co" style="min-height:130px" placeholder="Escreva o conte&uacute;do da not&iacute;cia..."></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-gh" onclick="cM('m-news')">Cancelar</button>
+      <button class="btn btn-g" onclick="salvarNews()">&#9989; Publicar Not&iacute;cia</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="shared.js"></script>
+<script src="portaladmin.js"></script>
+</body>
+</html>
