@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JHC ADV AGRO — Acesso</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+<div class="aw">
+  <div class="alogo">
+    <div class="ashield">JHC</div>
+    <div class="aname">JHC ADV AGRO</div>
+    <div class="asub">Acesso ao Sistema</div>
+  </div>
+  <div class="acard">
+    <div class="tabs">
+      <div class="tab act" id="tb-login" onclick="showTab('login')">Entrar</div>
+      <div class="tab"     id="tb-reg"   onclick="showTab('reg')">Cadastrar</div>
+      <div class="tab"     id="tb-staff" onclick="showTab('staff')">Funcion&aacute;rios</div>
+    </div>
+    <div id="al-auth"></div>
+
+    <!-- ENTRAR -->
+    <div class="panel act" id="p-login">
+      <div class="fg"><label>E-mail *</label>
+        <input type="email" id="l-em" placeholder="seu@email.com" autocomplete="email" onkeypress="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="fg"><label>Senha *</label>
+        <input type="password" id="l-pw" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" onkeypress="if(event.key==='Enter')doLogin()">
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.1rem">
+        <input type="checkbox" id="remem" style="width:auto;accent-color:var(--gold)">
+        <label for="remem" style="font-size:.77rem;color:var(--muted);cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0">Lembrar meu e-mail</label>
+      </div>
+      <button class="btn btn-g" id="bl" onclick="doLogin()" style="margin-bottom:.9rem">Entrar</button>
+      <div class="rbt">
+        <span class="sm">N&atilde;o tem conta? <span class="flk" onclick="showTab('reg')">Cadastre-se</span></span>
+        <span class="flk sm" onclick="showTab('reset')">Esqueci a senha</span>
+      </div>
+    </div>
+
+    <!-- CADASTRAR -->
+    <div class="panel" id="p-reg">
+      <div class="fr">
+        <div class="fg"><label>Nome completo *</label><input type="text" id="r-nm" placeholder="Seu nome completo"></div>
+        <div class="fg"><label>CPF</label><input type="text" id="r-cpf" placeholder="000.000.000-00" oninput="mCPF(this)"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>E-mail *</label><input type="email" id="r-em" placeholder="seu@email.com"></div>
+        <div class="fg"><label>Telefone</label><input type="tel" id="r-ph" placeholder="(17) 99999-9999"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Senha * (m&iacute;n 8)</label><input type="password" id="r-pw" placeholder="Crie uma senha segura"></div>
+        <div class="fg"><label>Confirmar senha *</label><input type="password" id="r-pw2" placeholder="Repita a senha"></div>
+      </div>
+      <button class="btn btn-g" id="br" onclick="doReg()" style="margin-bottom:.9rem">Criar Minha Conta</button>
+      <p style="text-align:center" class="sm">J&aacute; tem conta? <span class="flk" onclick="showTab('login')">Fa&ccedil;a login</span></p>
+    </div>
+
+    <!-- FUNCIONARIOS -->
+    <div class="panel" id="p-staff">
+      <div class="al al-i" style="font-size:.8rem;margin-bottom:1.1rem">
+        &#128274; <strong>Acesso exclusivo para equipe JHC ADV AGRO.</strong><br>
+        Use as credenciais fornecidas pelo administrador do escrit&oacute;rio.
+      </div>
+      <div class="fg"><label>Login *</label>
+        <input type="text" id="st-us" placeholder="Seu login interno" autocomplete="username" onkeypress="if(event.key==='Enter')doStaff()">
+      </div>
+      <div class="fg"><label>Senha *</label>
+        <input type="password" id="st-pw" placeholder="Sua senha" autocomplete="current-password" onkeypress="if(event.key==='Enter')doStaff()">
+      </div>
+      <button class="btn btn-g" id="bst" onclick="doStaff()" style="margin-bottom:.9rem">Acessar Sistema Interno</button>
+      <div class="rbt">
+        <span class="sm">Troca obrigat&oacute;ria no 1&ordm; acesso</span>
+        <span class="flk sm" onclick="showTab('reset-staff')">Esqueci a senha</span>
+      </div>
+    </div>
+
+    <!-- RESET CLIENTE -->
+    <div class="panel" id="p-reset">
+      <div class="ric">
+        <div class="ico">&#128274;</div>
+        <h3>Redefinir Senha</h3>
+        <p>Enviaremos um link para seu e-mail cadastrado</p>
+      </div>
+      <div id="al-reset"></div>
+      <div class="fg"><label>E-mail cadastrado *</label>
+        <input type="email" id="rst-em" placeholder="seu@email.com" onkeypress="if(event.key==='Enter')doReset()">
+      </div>
+      <button class="btn btn-g" id="brst" onclick="doReset()" style="margin-bottom:.9rem">Enviar Link de Redefini&ccedil;&atilde;o</button>
+      <p style="text-align:center" class="sm"><span class="flk" onclick="showTab('login')">&#8592; Voltar ao login</span></p>
+    </div>
+
+    <!-- RESET FUNCIONARIO -->
+    <div class="panel" id="p-reset-staff">
+      <div class="ric">
+        <div class="ico">&#128274;</div>
+        <h3>Redefini&ccedil;&atilde;o Interna de Senha</h3>
+        <p>Sua solicita&ccedil;&atilde;o ser&aacute; enviada ao administrador</p>
+      </div>
+      <div id="al-reset-staff"></div>
+      <div class="fg"><label>Seu login *</label><input type="text" id="rst-st-lg" placeholder="Ex: rafaelajhc"></div>
+      <div class="fg"><label>E-mail de contato *</label>
+        <input type="email" id="rst-st-em" placeholder="seu@email.com" onkeypress="if(event.key==='Enter')doResetStaff()">
+      </div>
+      <button class="btn btn-g" id="brst-st" onclick="doResetStaff()" style="margin-bottom:.9rem">Solicitar Redefini&ccedil;&atilde;o</button>
+      <p style="text-align:center" class="sm">O administrador ser&aacute; notificado e entrar&aacute; em contato.<br>
+        <span class="flk" onclick="showTab('staff')">&#8592; Voltar ao login de funcion&aacute;rios</span></p>
+    </div>
+
+    <!-- NOVA SENHA (via link email) -->
+    <div class="panel" id="p-nova-senha">
+      <div class="ric">
+        <div class="ico">&#128272;</div>
+        <h3>Definir Nova Senha</h3>
+        <p>Crie uma senha segura para sua conta</p>
+      </div>
+      <div id="al-nova"></div>
+      <div class="fg"><label>Nova Senha * (m&iacute;n 8 caracteres)</label>
+        <input type="password" id="nova-pw1" placeholder="M&iacute;nimo 8 caracteres">
+      </div>
+      <div class="fg"><label>Confirmar Nova Senha *</label>
+        <input type="password" id="nova-pw2" placeholder="Repita a senha">
+      </div>
+      <button class="btn btn-g" onclick="confirmarNovaSenha()" style="margin-bottom:.9rem">Confirmar Nova Senha</button>
+    </div>
+
+  </div>
+  <p class="back-home" onclick="location.href='index.html'">&#8592; Voltar ao site</p>
+</div>
+<script src="shared.js"></script>
+<script src="login.js"></script>
+</body>
+</html>
