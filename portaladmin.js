@@ -378,9 +378,7 @@ function salvarNews(){
   var filePromise = admNewsFile ? uploadAdmNewsFile(admNewsFile) : Promise.resolve(null);
   filePromise.then(function(fileUrl){
     var body = co || (admNewsFile ? '📎 Arquivo anexado: ' + admNewsFile.name : '');
-    if(fileUrl) body += '
-
-[Arquivo: ' + (admNewsFile ? admNewsFile.name : '') + '](' + fileUrl + ')';
+    if(fileUrl) body += '\n\n[Arquivo: ' + (admNewsFile ? admNewsFile.name : '') + '](' + fileUrl + ')';
     return q(function(s){
       return s.from('news').insert({
         title:ti, excerpt:ex||null, content:body,
